@@ -27,9 +27,10 @@ struct node{
         node *tmp = this->son[!op];
         this->son[!op] = this->fa;this->son[!op]->fa = this;
         if(tmp != NULL){this->son[!op]->son[op] = tmp;this->son[!op]->son[op]->fa = this->son[!op];}
+        else this->son[!op]->son[op] = NULL;
         if(opt != -1) {this->fa->fa->son[opt] = this;this->fa = this->fa->fa;}
         else this->fa = NULL;
-        this->update();this->son[!op]->update();
+        this->son[!op]->update();this->update();
     }
     void splay(node *f){
         while(this->fa != f){
@@ -71,14 +72,13 @@ struct Tree{
                 q->cnt = 1;q->num = x;q ->size = 1;
                 q->fa = f; f->son[type] = q;
                 q->son[0] = q->son[1] = NULL;
-                q->update();q->fa->update();
                 q->splay(NULL);
-                this->root = p;
+                this->root = q;
                 return;
             }
             if(p->num == x){
                 p->cnt += 1;
-                p->update();p->fa->update();
+                p->update();
                 p->splay(NULL);
                 this->root = p;
                 return;
