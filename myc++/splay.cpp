@@ -3,6 +3,10 @@ using namespace std;
 struct node{
     int num,cnt,size;
     node *son[2],*fa;
+    node(){
+        this->son[0] = this->son[1] = NULL;
+        num = cnt = size = 0;
+    }
     void update(){
         this->size = this->cnt;
         if(son[0] != NULL) this->size += son[0]->size;
@@ -20,17 +24,18 @@ struct node{
         int op = this->get();
         if(op == -1) return;
         int opt = this->fa->get();
-        node *tmp = this->son[op^1];
-        this->son[op^1] = this->fa;this->son[op^1]->fa = this;
-        this->son[op^1]->son[op] = tmp;this->son[op^1]->son[op]->fa = this->son[op^1];
+        node *tmp = this->son[!op];
+        this->son[!op] = this->fa;this->son[!op]->fa = this;
+        if(tmp != NULL){this->son[!op]->son[op] = tmp;this->son[!op]->son[op]->fa = this->son[!op];}
         if(opt != -1) {this->fa->fa->son[opt] = this;this->fa = this->fa->fa;}
-        this->update();this->son[op^1]->update();
+        else this->fa = NULL;
+        this->update();this->son[!op]->update();
     }
     void splay(node *f){
         while(this->fa != f){
             if(this->fa->get() == -1) this->rotate();
             else if(this->get() == this->fa->get()) {this->fa->rotate();this->rotate();}
-            else {this->rotate();this->rotate();};
+            else {this->rotate();this->rotate();}
         }
     }
     node *mge(node *tmp){
@@ -40,13 +45,15 @@ struct node{
         p->son[1] = tmp;
         return p;
     }
+    void print(){
+        if(this->son[0] != NULL) this->son[0]->print();
+        printf("%d ",this->num);
+        if(this->son[1] != NULL) this->son[1]->print();
+    }
 };
 struct Tree{
     node *root;
-    tree(node *_root = NULL) {
-        this->root = _root;
-        return 0;
-    }
+    Tree() {this->root = NULL;}
     void insert(int x){
         if(this->root == NULL){
             node *p = new node;
@@ -77,7 +84,7 @@ struct Tree{
                 return;
             }
             f = p;
-            type = (p->num>x);
+            type = (p->num<x);
             p = p->son[type];
         }
     }
@@ -112,14 +119,15 @@ struct Tree{
         return ans;
     }
     int kth(int x){
-        if(this->root == NULL) return 0;
+        if(this->root == NULL) return -1;
+        if(this->root->size < x) return -1;
         int nums = 0;
         node *p = this->root;
         while(true){
-            if(p == NULL) return 0;
-            if(nums + p->son[0]->size >= x) p = p->son[0];
-            else if(nums + p->size - p->son[1]->size >= x) return p->num;
-            else nums+=p->size-p->son[1]->size,p = p->son[1];
+            if(p == NULL) return -1;
+            if(nums + (p->son[0] == NULL ? 0 : p->son[0]->size) >= x) p = p->son[0];
+            else if(nums + p->size - (p->son[1] == NULL ? 0 : p->son[1]->size) >= x) return p->num;
+            else nums+=p->size-(p->son[1] == NULL ? 0 : p->son[1]->size),p = p->son[1];
         }
     }
     int low(int x){
@@ -138,10 +146,17 @@ struct Tree{
         this->erase(x);
         return ans;
     }
+    void check(){
+        this->root->print();
+        putchar('\n');
+    }
 }tree;
+
 int main(){
     tree.insert(2147483647);
+    tree.check();
     tree.insert(-2147483647);
+    tree.check();
     int n,opt,x;
     cin >> n;
     while(n--){
@@ -169,6 +184,7 @@ int main(){
         default:
             break;
         }
+        tree.check();
     }
     getchar();getchar();getchar();
     return 0;
