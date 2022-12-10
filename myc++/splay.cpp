@@ -24,11 +24,11 @@ struct node{
         int op = this->get();
         if(op == -1) return;
         int opt = this->fa->get();
-        node *tmp = this->son[!op];
+        node *tmp = this->son[!op],*emp = this->fa->fa;
         this->son[!op] = this->fa;this->son[!op]->fa = this;
         if(tmp != NULL){this->son[!op]->son[op] = tmp;this->son[!op]->son[op]->fa = this->son[!op];}
         else this->son[!op]->son[op] = NULL;
-        if(opt != -1) {this->fa->fa->son[opt] = this;this->fa = this->fa->fa;}
+        if(opt != -1) {emp->son[opt] = this;this->fa = emp;}
         else this->fa = NULL;
         this->son[!op]->update();this->update();
     }
@@ -83,6 +83,7 @@ struct Tree{
                 this->root = p;
                 return;
             }
+            p->size += 1;
             f = p;
             type = (p->num<x);
             p = p->son[type];
@@ -99,7 +100,8 @@ struct Tree{
                 p->splay(NULL);
                 this->root = p;
                 p->cnt -= 1;
-                p->update();p->fa->update();
+                p->update();
+                if(p->fa != NULL)p->fa->update();
                 if(p->cnt == 0){
                     this->root = p->son[0]->mge(p->son[1]);
                     p->clear();
@@ -154,9 +156,7 @@ struct Tree{
 
 int main(){
     tree.insert(2147483647);
-    tree.check();
     tree.insert(-2147483647);
-    tree.check();
     int n,opt,x;
     cin >> n;
     while(n--){
@@ -170,21 +170,20 @@ int main(){
             tree.erase(x);
             break;
         case 3:
-            cout << tree.rk(x) << endl;
+            cout << tree.rk(x) - 1 << endl;
             break;
         case 4:
-            cout << tree.kth(x) << endl;
+            cout << tree.kth(x+1) << endl;
             break;
         case 5:
-            cout << tree.low(x);
+            cout << tree.low(x) << endl;
             break;
         case 6:
-            cout << tree.upp(x);
+            cout << tree.upp(x) << endl;
             break;
         default:
             break;
         }
-        tree.check();
     }
     getchar();getchar();getchar();
     return 0;
