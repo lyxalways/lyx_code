@@ -26,10 +26,10 @@ struct node{
         int opt = this->fa->get();
         node *tmp = this->son[!op],*emp = this->fa->fa;
         this->son[!op] = this->fa;this->son[!op]->fa = this;
-        if(tmp != NULL){this->son[!op]->son[op] = tmp;this->son[!op]->son[op]->fa = this->son[!op];}
-        else this->son[!op]->son[op] = NULL;
-        if(opt != -1) {emp->son[opt] = this;this->fa = emp;}
-        else this->fa = NULL;
+        this->son[!op]->son[op] = tmp;
+        if(tmp != NULL) this->son[!op]->son[op]->fa = this->son[!op];
+        this->fa = emp;
+        if(opt != -1) emp->son[opt] = this;
         this->son[!op]->update();this->update();
     }
     void splay(node *f){
