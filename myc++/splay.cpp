@@ -28,11 +28,7 @@ struct node{
         this->son[!op] = this->fa;this->son[!op]->fa = this;
         if(tmp != NULL){this->son[!op]->son[op] = tmp;this->son[!op]->son[op]->fa = this->son[!op];}
         else this->son[!op]->son[op] = NULL;
-<<<<<<< HEAD
         if(opt != -1) {emp->son[opt] = this;this->fa = emp;}
-=======
-        if(opt != -1) {this->fa->fa->son[opt] = this;this->fa = this->fa->fa;}
->>>>>>> 33d983a67f74d2a26aa451e9d40242d1ed75f9f1
         else this->fa = NULL;
         this->son[!op]->update();this->update();
     }
