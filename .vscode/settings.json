@@ -9,12 +9,13 @@
         "MD012": false,
         "no-hard-tabs": false
     },
-    "C_Cpp.errorSquiggles": "Disabled",
+    "C_Cpp.errorSquiggles": "disabled",
     "files.associations": {
         "array": "cpp",
         "tuple": "cpp",
         "utility": "cpp",
         "new": "cpp",
-        "iostream": "cpp"
+        "iostream": "cpp",
+        "ostream": "cpp"
     }
 }

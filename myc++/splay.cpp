@@ -7,6 +7,11 @@ struct node{
         this->son[0] = this->son[1] = NULL;
         num = cnt = size = 0;
     }
+    node(int x){
+        this->son[0] = this->son[1] = NULL;
+        cnt = size = 1;
+        num = x;
+    }
     void update(){
         this->size = this->cnt;
         if(son[0] != NULL) this->size += son[0]->size;
@@ -18,6 +23,9 @@ struct node{
     }
     void clear(){
         this->size = this->cnt = this->num = 0;
+        if(this->son[0]!=NULL)this->son[0]->fa = NULL;
+        if(this->son[1]!=NULL)this->son[1]->fa = NULL;
+        if(this->fa != NULL) this->fa->son[this->get()] = NULL;
         this->fa = this->son[0] = this->son[1] = NULL;
     }
     void rotate(){
@@ -53,6 +61,13 @@ struct node{
         printf("%d ",this->num);
         if(this->son[1] != NULL) this->son[1]->print();
     }
+    ~node(){
+        this->size = this->cnt = this->num = 0;
+        if(this->son[0]!=NULL)this->son[0]->fa = NULL;
+        if(this->son[1]!=NULL)this->son[1]->fa = NULL;
+        if(this->fa != NULL) this->fa->son[this->get()] = NULL;
+        this->fa = this->son[0] = this->son[1] = NULL;
+    }
 };
 struct Tree{
     node *root;
@@ -61,8 +76,8 @@ struct Tree{
         if(this->root == NULL){
             node *p = new node;
             this->root = p;
-            p->cnt = 1;p->num = x;p->size = 1;
-            p->fa = p->son[0] = p->son[1] = NULL;
+            *p = node(x);
+            p->fa = NULL;
             return;
         }
         int type = -1;
@@ -71,9 +86,8 @@ struct Tree{
         while(true){
             if(p == NULL){
                 node *q = new node;
-                q->cnt = 1;q->num = x;q ->size = 1;
+                *q = node(x);
                 q->fa = f; f->son[type] = q;
-                q->son[0] = q->son[1] = NULL;
                 q->splay(NULL);
                 this->root = q;
                 return;
@@ -98,23 +112,22 @@ struct Tree{
         node *p = this->root;
         while(true){
             if(p == NULL) return;
+            p->size -= 1;
             if(p->num == x){
+                p->cnt -= 1;
                 p->splay(NULL);
                 this->root = p;
-                p->cnt -= 1;
-                p->update();
-                if(p->fa != NULL)p->fa->update();
                 if(p->cnt == 0){
-                    if(p->son[0] != NULL)this->root = p->son[0]->mge(p->son[1]);
-                    else this->root = p->son[1];
-                    if(this->root != NULL)this->root->fa = NULL;
-                    p->clear();
+                    node *tmp1 = p->son[0],*tmp2 = p->son[1];
                     delete p;
+                    if(tmp1 != NULL)this->root = tmp1->mge(tmp2);
+                    else this->root = tmp2;
+                    if(this->root != NULL)this->root->fa = NULL;
                 }
                 return;
             }
             f = p;
-            type = (p->num>x);
+            type = (p->num<x);
             p = p->son[type];
         }
     }
@@ -137,7 +150,7 @@ struct Tree{
                 return p->num;
             }
             else{
-                nums -= p->son[0] == NULL ? 0 : p->son[0]->size + p->cnt;
+                nums -= (p->son[0] == NULL ? 0 : p->son[0]->size) + p->cnt;
                 p = p->son[1];
             }
         }
@@ -195,5 +208,6 @@ int main(){
             break;
         }
     }
+    getchar();getchar();
     return 0;
 }
