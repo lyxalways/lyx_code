@@ -1,5 +1,81 @@
 #include <bits/stdc++.h>
 using namespace std;
+class node{
+private:
+    int num,cnt,size;
+    node *son[2],*fa;
+public:
+    node();
+    node(int x);
+    void update();
+    int get();
+    friend void connect(node *f,node *s,int type);
+    friend void prep(node *f,node *s);
+    void rotate();
+    void splay(node *f);
+    friend node* mge(node *l,node *r);
+    ~node();
+};
+
+node::node(){
+    this->son[0] = this->son[1] = NULL;
+    num = cnt = size = 0;
+}
+node::node(int x){
+    this->son[0] = this->son[1] = NULL;
+    cnt = size = 1;
+    num = x;
+}
+inline void node::update(){
+    this->size = this->cnt;
+    if(son[0] != NULL) this->size += son[0]->size;
+    if(son[1] != NULL) this->size += son[1]->size;
+}
+inline int node::get(){
+    if(this->fa == NULL) return -1;
+    return (this->fa->son[1] == this);
+}
+void connect(node *f,node *s,int type){
+    if(f != NULL) f->son[type] = s;
+    if(s != NULL) s->fa = f;
+}
+void prep(node *f,node *s){
+    if(s == NULL) return;
+    if(f != NULL) f->son[s->get()] = NULL;
+    s->fa = NULL;
+}
+inline void node::rotate(){
+    int op = this->get();
+    if(op == -1) return;
+    int opt = this->fa->get();
+    node *tmp1 = this->son[!op],*tmp2 = this->fa->fa,*tmp3 = this,*tmp4 = this->fa;
+    prep(tmp3,tmp1);prep(tmp4,tmp3);prep(tmp2,tmp4);
+    connect(tmp3,tmp4,!op);connect(tmp4,tmp1,op);connect(tmp2,tmp3,opt);
+    this->son[!op]->update();this->update();
+}
+void node::splay(node *f){
+    while(this->fa != f){
+        if(this->fa->get() == -1) this->rotate();
+        else if(this->get() == this->fa->get()) {this->fa->rotate();this->rotate();}
+        else {this->rotate();this->rotate();}
+    }
+}
+void mge(node *l,node *r){
+    if(l == NULL) return r;
+    node *p = l;
+    while(p->son[1] != NULL) p = p->son[1];
+    p->splay(l->fa);
+    connect(p,r,1);
+    p->update();
+    return p;
+}
+node::~node(){
+    this->size = this->cnt = this->num = 0;
+    if(this->son[0]!=NULL)this->son[0]->fa = NULL;
+    if(this->son[1]!=NULL)this->son[1]->fa = NULL;
+    if(this->fa != NULL) this->fa->son[this->get()] = NULL;
+    this->fa = this->son[0] = this->son[1] = NULL;
+}
 struct node{
     int num,cnt,size;
     node *son[2],*fa;
@@ -20,13 +96,6 @@ struct node{
     int get(){
         if(this->fa == NULL) return -1;
         return (this->fa->son[1] == this);
-    }
-    void clear(){
-        this->size = this->cnt = this->num = 0;
-        if(this->son[0]!=NULL)this->son[0]->fa = NULL;
-        if(this->son[1]!=NULL)this->son[1]->fa = NULL;
-        if(this->fa != NULL) this->fa->son[this->get()] = NULL;
-        this->fa = this->son[0] = this->son[1] = NULL;
     }
     void rotate(){
         int op = this->get();
